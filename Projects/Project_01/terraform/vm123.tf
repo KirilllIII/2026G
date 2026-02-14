@@ -1,0 +1,82 @@
+resource "vkcs_compute_instance" "ACM-Server" {
+  name = "ACM-Server"
+  availability_zone = "ME1"
+  flavor_name       = "STD3-1-2"
+  security_groups   = ["default","ssh"]
+  user_data         = file("cloud-init.yml")
+  block_device {
+    source_type      = "image"
+    uuid             = "f5b9db9e-6867-42fd-8940-ff5d869a75db"
+    destination_type = "volume"
+    volume_size      = 20
+    volume_type      = "ceph-ssd"
+    delete_on_termination = true
+  }
+  network {
+    port = vkcs_networking_port.ACM-Server.id
+  }
+}
+
+resource "vkcs_networking_port" "ACM-Server" {
+  name       = "ACM-Server"
+  network_id = "a6dcfe27-58ed-41ce-9397-d679da4ef011"
+  fixed_ip {
+    subnet_id = "725469e1-62d9-4ecf-958d-662af9f6fa49"
+    ip_address = "192.168.0.10"
+  }
+}
+resource "vkcs_compute_instance" "DB-Server" {
+  name = "DB-Server"
+  availability_zone = "ME1"
+  flavor_name       = "STD3-1-1"
+  security_groups   = ["default","ssh"]
+  user_data         = file("cloud-init.yml")
+  block_device {
+    source_type      = "image"
+    uuid             = "f5b9db9e-6867-42fd-8940-ff5d869a75db"
+    destination_type = "volume"
+    volume_size      = 20
+    volume_type      = "ceph-ssd"
+    delete_on_termination = true
+  }
+  network {
+    port = vkcs_networking_port.DB-Server.id
+  }
+}
+
+resource "vkcs_networking_port" "DB-Server" {
+  name       = "DB-Server"
+  network_id = "a6dcfe27-58ed-41ce-9397-d679da4ef011"
+  fixed_ip {
+    subnet_id = "725469e1-62d9-4ecf-958d-662af9f6fa49"
+    ip_address = "192.168.0.11"
+  }
+}
+resource "vkcs_compute_instance" "BAR-Agent01" {
+  name = "BAR-Agent01"
+  availability_zone = "ME1"
+  flavor_name       = "STD3-1-1"
+  security_groups   = ["default","ssh"]
+  user_data         = file("cloud-init.yml")
+  block_device {
+    source_type      = "image"
+    uuid             = "f5b9db9e-6867-42fd-8940-ff5d869a75db"
+    destination_type = "volume"
+    volume_size      = 10
+    volume_type      = "ceph-ssd"
+    delete_on_termination = true
+  }
+  network {
+    port = vkcs_networking_port.BAR-Agent01.id
+  }
+}
+
+resource "vkcs_networking_port" "BAR-Agent01" {
+  name       = "BAR-Agent01"
+  network_id = "a6dcfe27-58ed-41ce-9397-d679da4ef011"
+  fixed_ip {
+    subnet_id = "725469e1-62d9-4ecf-958d-662af9f6fa49"
+    ip_address = "192.168.0.7"
+  }
+}
+

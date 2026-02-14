@@ -1,0 +1,45 @@
+- hosts: games
+  become: true
+
+  tasks:
+    - name: tmp
+      shell: mount -o remount,size=2G /tmp
+
+    - name: install docker
+      community.general.apt_rpm:
+        name:
+          - docker-engine
+          - docker-buildx
+        state: present
+        update_cache: true 
+
+    - name: start docker
+      ansible.builtin.systemd:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: copy dockerfile
+      ansible.builtin.copy:
+        src: "/etc/ansible/Dockerfile"
+        dest: "/home/altlinux/2048-game/"
+
+    - name: copy project
+      ansible.builtin.copy:
+        src: "/home/altlinux/Projects/Project_01/2048-game/"
+        dest: "/home/altlinux/2048-game/"
+
+    - name: build docker
+      community.docker.docker_image_build:
+        name: "2048-game"
+        path: "/home/altlinux/2048-game/"
+        dockerfile: "/home/altlinux/2048-game/Dockerfile"
+
+    - name: start container
+      community.docker.docker_container:
+        name: "2048-game"
+        image: "2048-game"
+        state: started
+        restart: true
+        ports: "80:80"
+
