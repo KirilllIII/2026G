@@ -1,0 +1,29 @@
+- hosts: work
+  become: true
+  
+  tasks:
+    - name: tmp 
+      shell: mount -o remount,size=2G /tmp
+    - name: docker
+      community.general.apt_rpm:
+        name: docker-engine
+        state: present
+        update_cache: true
+
+    - name: start docker
+      ansible.builtin.systemd:
+        name: docker
+        state: started
+        enabled: true 
+
+    - name: copy
+      ansible.builtin.copy:
+        src: "/etc/docker/daemon.json"
+        dest: "/etc/docker/daemon.json"
+      notify:
+        - restart
+
+  handlers:
+    - name: restart 
+      ansible.builtin.systemd:
+        state: restart

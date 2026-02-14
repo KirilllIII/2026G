@@ -1,0 +1,82 @@
+resource "vkcs_compute_instance" "master01" {
+  name = "master01"
+  availability_zone = "ME1"
+  flavor_name       = "STD3-1-1"
+  security_groups   = ["default","ssh"]
+  user_data         = file("cloud-init.yml")
+  block_device {
+    source_type      = "image"
+    uuid             = "f5b9db9e-6867-42fd-8940-ff5d869a75db"
+    destination_type = "volume"
+    volume_size      = 10
+    volume_type      = "ceph-ssd"
+    delete_on_termination = true
+  }
+  network {
+    port = vkcs_networking_port.master01.id
+  }
+}
+
+resource "vkcs_networking_port" "master01" {
+  name       = "master01"
+  network_id = "a6dcfe27-58ed-41ce-9397-d679da4ef011"
+  fixed_ip {
+    subnet_id = "725469e1-62d9-4ecf-958d-662af9f6fa49"
+    ip_address = "192.168.0.5"
+  }
+}
+resource "vkcs_compute_instance" "worker01" {
+  name = "worker01"
+  availability_zone = "ME1"
+  flavor_name       = "STD3-1-1"
+  security_groups   = ["default","ssh"]
+  user_data         = file("cloud-init.yml")
+  block_device {
+    source_type      = "image"
+    uuid             = "f5b9db9e-6867-42fd-8940-ff5d869a75db"
+    destination_type = "volume"
+    volume_size      = 10
+    volume_type      = "ceph-ssd"
+    delete_on_termination = true
+  }
+  network {
+    port = vkcs_networking_port.worker01.id
+  }
+}
+
+resource "vkcs_networking_port" "worker01" {
+  name       = "worker01"
+  network_id = "a6dcfe27-58ed-41ce-9397-d679da4ef011"
+  fixed_ip {
+    subnet_id = "725469e1-62d9-4ecf-958d-662af9f6fa49"
+    ip_address = "192.168.0.6"
+  }
+}
+resource "vkcs_compute_instance" "worker02" {
+  name = "worker02"
+  availability_zone = "ME1"
+  flavor_name       = "STD3-1-1"
+  security_groups   = ["default","ssh"]
+  user_data         = file("cloud-init.yml")
+  block_device {
+    source_type      = "image"
+    uuid             = "f5b9db9e-6867-42fd-8940-ff5d869a75db"
+    destination_type = "volume"
+    volume_size      = 10
+    volume_type      = "ceph-ssd"
+    delete_on_termination = true
+  }
+  network {
+    port = vkcs_networking_port.worker02.id
+  }
+}
+
+resource "vkcs_networking_port" "worker02" {
+  name       = "worker02"
+  network_id = "a6dcfe27-58ed-41ce-9397-d679da4ef011"
+  fixed_ip {
+    subnet_id = "725469e1-62d9-4ecf-958d-662af9f6fa49"
+    ip_address = "192.168.0.7"
+  }
+}
+

@@ -1,0 +1,9 @@
+authorityKeyIdentifier = keyid,issuer
+basicConstraints = CA:false
+subjectAltName = @alt_names
+
+[ alt_names ]
+DNS.1 = dev.au.team
+DNS.2 = game.au.team
+IP.1  = 83.166.238.60
+IP.2  = 192.168.0.4

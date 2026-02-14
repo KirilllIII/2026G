@@ -1,0 +1,82 @@
+#---------------------------------------------------------------------
+# Example configuration for a possible web application.  See the
+# full configuration options online.
+#
+#   http://haproxy.1wt.eu/download/1.4/doc/configuration.txt
+#
+#---------------------------------------------------------------------
+
+#---------------------------------------------------------------------
+# Global settings
+#---------------------------------------------------------------------
+global
+    # log to /dev/log
+    log /dev/log daemon
+
+    # log to local syslogd from chroot over UDP
+    #log         127.0.0.1:514 local2
+    #log         tcp@127.0.0.1:514 local2 notice
+
+    # send log to systemd-journald
+    #log stdout format short daemon
+
+    chroot      /var/lib/haproxy
+    pidfile     /run/haproxy.pid
+    maxconn     4000
+    user        _haproxy
+    group       _haproxy
+    daemon
+
+    # turn on stats unix socket
+    stats socket /var/lib/haproxy/stats
+
+#---------------------------------------------------------------------
+# common defaults that all the 'listen' and 'backend' sections will
+# use if not designated in their block
+#---------------------------------------------------------------------
+defaults
+    mode                    http
+    log                     global
+    option                  httplog
+    option                  dontlognull
+    option http-server-close
+    option forwardfor       except 127.0.0.0/8
+    option                  redispatch
+    retries                 3
+    timeout http-request    10s
+    timeout queue           1m
+    timeout connect         10s
+    timeout client          1m
+    timeout server          1m
+    timeout http-keep-alive 10s
+    timeout check           10s
+    maxconn                 3000
+
+#---------------------------------------------------------------------
+# main frontend which proxys to the backends
+#---------------------------------------------------------------------
+frontend main
+    bind *:80
+    bind *:443 ssl crt /var/lib/ssl/game.pem
+    stats enable
+    stats uri /haproxy?stats
+    stats realm Haproxy\ Stats
+    use_backend static          if url_static
+    default_backend             app
+
+#---------------------------------------------------------------------
+# static backend for serving up images, stylesheets and such
+#---------------------------------------------------------------------
+backend static
+    balance     roundrobin
+    server      game01 192.168.0.1:80 check
+    server      game02 192.168.0.2:80 check
+    server      game03 192.168.0.3:80 check
+#---------------------------------------------------------------------
+# round robin balancing between the various backends
+#---------------------------------------------------------------------
+backend app
+    balance     roundrobin
+    server  game01 192.168.0.1:80 check
+    server  game02 192.168.0.2:80 check
+    server  game03 192.168.0.3:80 check
